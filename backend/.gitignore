@@ -1,36 +1,4 @@
-# Node dependencies
-node_modules/
-
-# TypeScript build output
-dist/
-
-# Environment variables
 .env
-.env.local
-.env.*.local
-
-# Log files
+node_modules
+dist
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE / editor files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-
-# Coverage reports
-coverage/
-*.lcov
-
-# Optional: temp files
-*.tmp
-*.temp
