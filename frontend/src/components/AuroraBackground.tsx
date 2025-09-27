@@ -13,6 +13,7 @@ function AuroraBackground() {
   />
      {/* Your Content/Components */}
 </div>
+   
   );
 }
 
