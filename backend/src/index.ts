@@ -1,19 +1,19 @@
-import { GoogleGenAI } from '@google/genai';
-import dotenv from 'dotenv';
+import express from "express";
+// import cors from "cors";
+import dotenv from "dotenv";
+import chatRouter from "./routes/chat.js";
+import templateRouter from "./routes/template.js";
 
 dotenv.config();
 
-const client = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_GEMINI_KEY!,
+const app = express();
+// app.use(cors());
+app.use(express.json());
+
+app.use("/template", templateRouter); // Determines project type
+app.use("/chat", chatRouter);         // Generates code/chat based on project type
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
-
-async function main() {
-  const response = await client.models.generateContent({
-    model: 'gemini-2.0-flash-lite',
-    contents: 'Hello',
-  });
-
-  console.log(response.text);
-}
-
-main().catch(console.error);
