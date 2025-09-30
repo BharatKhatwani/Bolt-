@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
 
     const response = { response: aiOutput };
     return res.json(response);
-o  } catch (error) {
+ } catch (error) {
     console.error(error);
     const errorResponse = { error: 'Failed to process chat request' };
     return res.status(500).json(errorResponse);
