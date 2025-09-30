@@ -13,7 +13,7 @@ app.use(express.json());
 app.use("/template", templateRouter); // Determines project type
 app.use("/chat", chatRouter);         // Generates code/chat based on project type
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

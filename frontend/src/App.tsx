@@ -1,5 +1,5 @@
 // App.tsx
-import React from "react";
+//import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import AuroraBackground from "./components/AuroraBackground";
 import { Home } from "./Page/Home";
