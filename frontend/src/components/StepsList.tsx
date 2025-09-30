@@ -24,7 +24,7 @@ export function StepsList({ steps, currentStep, onStepClick }: StepsListProps) {
         </p>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 relative">
+      <div className="flex-1 overflow-hidden p-4 relative hover:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         <div className="space-y-3">
           {steps.length === 0 ? (
             <div className="text-center py-8 text-gray-500">

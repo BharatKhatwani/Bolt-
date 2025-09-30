@@ -5,13 +5,15 @@ import { FileExplorer } from '../components/FileExplorer';
 import { TabView } from '../components/TabView';
 import { CodeEditor } from '../components/CodeEditor';
 import { PreviewFrame } from '../components/PreviewFrame';
-import type { Step, FileItem, StepType } from '../types';
+import type { Step, FileItem } from '../types';
 import axios from 'axios';
 import { BACKEND_URL } from '../config';
 import { parseXml } from '../steps';
 import { useWebContainer } from '../hook/useWebContainer';
 import  type { FileNode } from '@webcontainer/api';
+import { Textarea } from '../components/ui/textarea.tsx';
 import { Loader } from '../components/Loader';
+import { Button } from '../components/ui/button.tsx';
 
 const MOCK_FILE_CONTENT = `// This is a sample file content
 import React from 'react';
@@ -198,29 +200,29 @@ export function Builder() {
       </header>
       
       <div className="flex-1 overflow-hidden">
-        <div className="h-full grid grid-cols-4 gap-6 p-6">
-        <div className="col-span-1 flex flex-col overflow-hidden h-[calc(100vh-8rem)]">
-            <div className="flex-1 overflow-y-auto mb-4">
+        <div className="h-full grid grid-cols-4 gap-4 p-4">
+          <div className="col-span-1 flex flex-col h-[calc(100vh-7rem)]">
+            <div className="flex-1 overflow-hidden mb-4">
               <StepsList
                 steps={steps}
                 currentStep={currentStep}
                 onStepClick={setCurrentStep}
               />
             </div>
-            <div className="border-t border-gray-700 pt-4">
+            <div className="border-t border-gray-700 pt-4 pb-2">
               {(loading || !templateSet) ? (
                 <div className="flex justify-center">
                   <Loader />
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <textarea 
+                  <Textarea
                     value={userPrompt} 
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter your prompt..."
                     className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[80px]"
                   />
-                  <button 
+                  <Button
                     onClick={async () => {
                       const newMessage = {
                         role: "user" as "user",
@@ -249,27 +251,28 @@ export function Builder() {
                     className="bg-purple-600 hover:bg-purple-700 text-white px-6 rounded-lg font-medium transition-colors duration-200 self-end"
                   >
                     Send
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
           </div>
-          <div className="col-span-1">
-              <FileExplorer 
-                files={files} 
-                onFileSelect={setSelectedFile}
-              />
-            </div>
-          <div className="col-span-2 bg-gray-900 rounded-lg shadow-lg p-4 h-[calc(100vh-8rem)]">
-            <TabView activeTab={activeTab} onTabChange={setActiveTab} />
-            <div className="h-[calc(100%-4rem)]">
-              {activeTab === 'code' ? (
-                <CodeEditor file={selectedFile} />
-              ) : (
-                <PreviewFrame webContainer={webcontainer} files={files} />
-              )}
-            </div>
+          <div className="col-span-1 h-[calc(100vh-7rem)]">
+            <FileExplorer 
+              files={files} 
+              onFileSelect={setSelectedFile}
+            />
           </div>
+          <div className="col-span-2 bg-gray-900 rounded-lg shadow-lg flex flex-col h-[calc(100vh-7rem)]">
+  <TabView activeTab={activeTab} onTabChange={setActiveTab} />
+  <div className="flex-1 overflow-hidden">
+    {activeTab === 'code' ? (
+      <CodeEditor file={selectedFile} />
+    ) : (
+      <PreviewFrame webContainer={webcontainer} files={files} />
+    )}
+  </div>
+</div>
+
         </div>
       </div>
     </div>

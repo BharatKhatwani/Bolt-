@@ -19,7 +19,7 @@ export function CodeEditor({ file }: CodeEditorProps) {
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full flex">
       <Editor
         height="100%"
         width="100%"
