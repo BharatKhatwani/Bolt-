@@ -3,7 +3,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import AuroraBackground from "./components/AuroraBackground";
 import { Home } from "./Page/Home";
-import Builder from "./Page/Builder";
+import {Builder} from "./Page/Builder";
 function App() {
   return (
 

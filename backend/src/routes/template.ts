@@ -21,11 +21,16 @@ router.post("/", async (req, res) => {
     {
       role: "user",
       content: `
-Analyze the following code or project description. Respond with a single word: 'node' or 'react'. 
-If it does not fit either, respond exactly with: 'cannot process'.
-Do not include extra text.
+Analyze the following project description and determine the project type.
 
-Project description or code:
+Rules:
+- If it mentions "React", "frontend", "UI", "website", "web app", "component", or describes a user interface → respond with: react
+- If it mentions "API", "backend", "Express", "server", "REST", "endpoint", "Node.js server", or describes server-side logic → respond with: node
+- If unclear, default to: react
+
+Respond with ONLY ONE WORD: either "react" or "node"
+
+Project description:
 ${prompt}
       `,
     },
@@ -36,21 +41,10 @@ ${prompt}
     const answer = (await callGemini(messages, 200)).trim().toLowerCase().split(" ")[0];
 
 
-    if (answer === "cannot process") {
-  return res.status(400).json({ error: "AI cannot process this project type" });
-}
+    console.log(`Detected project type: ${answer}`);
 
-
-    if (answer === "react") {
-      const response: TemplateResponse = {
-        prompts: [
-          BASE_PROMPT,
-          `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${reactBasePrompt}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n  - .gitignore\n  - package-lock.json`,
-        ],
-        uiPrompts: [reactBasePrompt],
-      };
-      return res.json(response);
-    } else if (answer === "node") {
+    if (answer === "node" || answer.includes("express") || answer.includes("backend")) {
+      // Node.js/Express backend project
       const response: TemplateResponse = {
         prompts: [
           BASE_PROMPT,
@@ -60,8 +54,15 @@ ${prompt}
       };
       return res.json(response);
     } else {
-      const errorResponse: ErrorResponse = { error: "AI cannot process this project type" };
-      return res.status(400).json(errorResponse);
+      // Default to React for frontend/UI projects
+      const response: TemplateResponse = {
+        prompts: [
+          BASE_PROMPT,
+          `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${reactBasePrompt}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n  - .gitignore\n  - package-lock.json`,
+        ],
+        uiPrompts: [reactBasePrompt],
+      };
+      return res.json(response);
     }
   } catch (error) {
     console.error(error);
