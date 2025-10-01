@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Combine system prompt + user messages
+    
     const messages = [
       { role: 'user', content: getSystemPrompt() },
       ...userMessages,
