@@ -19,9 +19,7 @@ export function StepsList({ steps, currentStep, onStepClick }: StepsListProps) {
     <div className="bg-gray-900 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
       <div className="p-4 border-b border-gray-700">
         <h2 className="text-lg font-semibold text-gray-100">Build Steps</h2>
-        <p className="text-xs text-gray-400 mt-1">
-          {steps.length} {steps.length === 1 ? 'step' : 'steps'}
-        </p>
+     
       </div>
 
       <div className="flex-1 overflow-hidden p-4 relative hover:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
