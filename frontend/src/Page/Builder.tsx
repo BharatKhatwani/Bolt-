@@ -7,16 +7,16 @@ import { CodeEditor } from '../components/CodeEditor';
 import { PreviewFrame } from '../components/PreviewFrame';
 import type { Step, FileItem } from '../types';
 import axios from 'axios';
-import { BACKEND_URL } from '../config';
 import { parseXml } from '../steps';
 import { useWebContainer } from '../hook/useWebContainer';
 import { Textarea } from '../components/ui/textarea.tsx';
 import { Loader } from '../components/Loader';
 import { Button } from '../components/ui/button.tsx';
-
 import JSZip from 'jszip';
-import { Download, Home } from 'lucide-react';
+import { Download, Home, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function Builder() {
   const location = useLocation();
@@ -32,20 +32,19 @@ export function Builder() {
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   
   const [steps, setSteps] = useState<Step[]>([]);
-
   const [files, setFiles] = useState<FileItem[]>([]);
 
+  // Mobile sidebar states
+  const [showSteps, setShowSteps] = useState(false);
+  const [showFiles, setShowFiles] = useState(false);
 
-
-const handleDownloadZip = async () => {
+  const handleDownloadZip = async () => {
     const zip = new JSZip();
 
-    // Recursive function to add files to zip
     const addFilesToZip = (items: FileItem[], folder: JSZip | null = null) => {
       items.forEach(item => {
         if (item.type === 'file') {
           const content = item.content || '';
-          // Remove leading slash from path for cleaner zip structure
           const zipPath = item.path?.startsWith('/') ? item.path.slice(1) : item.path || item.name;
           
           if (folder) {
@@ -54,7 +53,6 @@ const handleDownloadZip = async () => {
             zip.file(zipPath, content);
           }
         } else if (item.type === 'folder' && item.children) {
-          // Create folder in zip
           const folderPath = item.path?.startsWith('/') ? item.path.slice(1) : item.path || item.name;
           const newFolder = folder ? folder.folder(item.name) : zip.folder(folderPath);
           
@@ -65,22 +63,16 @@ const handleDownloadZip = async () => {
       });
     };
 
-    // Add all files to the zip
     addFilesToZip(files);
 
-    // Generate zip file
     try {
       const blob = await zip.generateAsync({ type: 'blob' });
-      
-      // Create download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = 'project.zip';
       document.body.appendChild(link);
       link.click();
-      
-      // Cleanup
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -89,19 +81,14 @@ const handleDownloadZip = async () => {
     }
   };
 
-
-
-
-
-
   useEffect(() => {
     let originalFiles = [...files];
     let updateHappened = false;
     steps.filter(({status}) => status === "pending").map(step => {
       updateHappened = true;
       if (step?.type === 'CreateFile') {
-        let parsedPath = step.path?.split("/") ?? []; // ["src", "components", "App.tsx"]
-        let currentFileStructure = [...originalFiles]; // {}
+        let parsedPath = step.path?.split("/") ?? [];
+        let currentFileStructure = [...originalFiles];
         let finalAnswerRef = currentFileStructure;
   
         let currentFolder = ""
@@ -111,7 +98,6 @@ const handleDownloadZip = async () => {
           parsedPath = parsedPath.slice(1);
   
           if (!parsedPath.length) {
-            // final file
             let file = currentFileStructure.find(x => x.path === currentFolder)
             if (!file) {
               currentFileStructure.push({
@@ -124,10 +110,8 @@ const handleDownloadZip = async () => {
               file.content = step.code;
             }
           } else {
-            /// in a folder
             let folder = currentFileStructure.find(x => x.path === currentFolder)
             if (!folder) {
-              // create the folder
               currentFileStructure.push({
                 name: currentFolderName,
                 type: 'folder',
@@ -141,21 +125,17 @@ const handleDownloadZip = async () => {
         }
         originalFiles = finalAnswerRef;
       }
-
     })
 
     if (updateHappened) {
-
       setFiles(originalFiles)
       setSteps(steps => steps.map((s: Step) => {
         return {
           ...s,
           status: "completed"
         }
-        
       }))
     }
-    console.log(files);
   }, [steps, files]);
 
   useEffect(() => {
@@ -164,7 +144,6 @@ const handleDownloadZip = async () => {
   
       const processFile = (file: FileItem, isRootFolder: boolean) => {  
         if (file.type === 'folder') {
-          // For folders, create a directory entry
           mountStructure[file.name] = {
             directory: file.children ? 
               Object.fromEntries(
@@ -180,7 +159,6 @@ const handleDownloadZip = async () => {
               }
             };
           } else {
-            // For files, create a file entry with contents
             return {
               file: {
                 contents: file.content || ''
@@ -192,16 +170,11 @@ const handleDownloadZip = async () => {
         return mountStructure[file.name];
       };
   
-      // Process each top-level file/folder
       files.forEach(file => processFile(file, true));
-  
       return mountStructure;
     };
   
     const mountStructure = createMountStructure(files);
-  
-    // Mount the structure if WebContainer is available
-    console.log(mountStructure);
     webcontainer?.mount(mountStructure);
   }, [files, webcontainer]);
 
@@ -247,54 +220,82 @@ const handleDownloadZip = async () => {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
- <header className="border-b border-gray-700 px-6 py-4">
+      {/* Header */}
+      <header className="border-b border-gray-700 px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-blue-400">BOLT</h1>
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button */}
+            <button 
+              onClick={() => setShowSteps(!showSteps)}
+              className="lg:hidden text-gray-100 hover:text-blue-400 transition-colors"
+            >
+              {showSteps ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <h1 className="text-lg sm:text-xl font-semibold text-blue-400">BOLT</h1>
+          </div>
           
           {/* Actions */}
-          <div className="flex space-x-4 items-center text-gray-100">
-            {/* Show download button only when all steps are completed */}
+          <div className="flex gap-2 sm:gap-4 items-center text-gray-100">
             {steps.length > 0 && steps.every(step => step.status === 'completed') && (
               <button 
                 onClick={handleDownloadZip}
                 disabled={files.length === 0}
-                className="flex items-center space-x-1 cursor-pointer hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 cursor-pointer hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
               >
-                <Download size={18} />
-                <span>Download Zip File</span>
+                <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <span className="hidden sm:inline">Download Zip</span>
               </button>
             )}
-            <Link to="/" className="flex items-center space-x-1 hover:text-blue-400">
-              <Home size={18} />
-              <span>Home</span>
+            <Link to="/" className="flex items-center gap-1 hover:text-blue-400 text-sm sm:text-base">
+              <Home size={16} className="sm:w-[18px] sm:h-[18px]" />
+              <span className="hidden sm:inline">Home</span>
             </Link>
           </div>
         </div>
       </header>
 
-      
+      {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full grid grid-cols-4 gap-4 p-4">
-          <div className="col-span-1 flex flex-col h-[calc(100vh-7rem)]">
-            <div className="flex-1 overflow-hidden mb-4">
+        <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-2 sm:gap-4 p-2 sm:p-4">
+          
+          {/* Steps Panel - Mobile Overlay / Desktop Column */}
+          <div className={`
+            ${showSteps ? 'fixed inset-0 z-50 bg-gray-900' : 'hidden'} 
+            lg:block lg:relative lg:col-span-1 
+            flex flex-col h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]
+          `}>
+            {/* Mobile close button */}
+            <div className="lg:hidden flex justify-between items-center p-4 border-b border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-100">Steps</h2>
+              <button onClick={() => setShowSteps(false)} className="text-gray-100">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-hidden mb-4 p-2 lg:p-0">
               <StepsList
                 steps={steps}
                 currentStep={currentStep}
-                onStepClick={setCurrentStep}
+                onStepClick={(step) => {
+                  setCurrentStep(step);
+                  setShowSteps(false);
+                }}
               />
             </div>
-            <div className="border-t border-gray-700 pt-4 pb-2">
+            
+            {/* Prompt Input */}
+            <div className="border-t border-gray-700 pt-4 pb-2 px-2 lg:px-0">
               {(loading || !templateSet) ? (
                 <div className="flex justify-center">
                   <Loader />
                 </div>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Textarea
                     value={userPrompt} 
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter your prompt..."
-                    className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[80px]"
+                    className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[80px] text-sm sm:text-base"
                   />
                   <Button
                     onClick={async () => {
@@ -321,8 +322,9 @@ const handleDownloadZip = async () => {
                       }))]);
 
                       setPrompt("");
+                      setShowSteps(false);
                     }} 
-                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer  text-white px-6 rounded-lg font-medium transition-colors duration-200 self-end"
+                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 self-end text-sm sm:text-base"
                   >
                     Send
                   </Button>
@@ -330,22 +332,55 @@ const handleDownloadZip = async () => {
               )}
             </div>
           </div>
-          <div className="col-span-1 h-[calc(100vh-7rem)]">
+
+          {/* File Explorer - Hidden on mobile, visible on tablet+ */}
+          <div className="hidden md:block md:col-span-1 lg:col-span-1 h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]">
             <FileExplorer 
               files={files} 
               onFileSelect={setSelectedFile}
             />
           </div>
-          <div className="col-span-2 bg-gray-900 rounded-lg shadow-lg flex flex-col h-[calc(100vh-7rem)]">
-  <TabView activeTab={activeTab} onTabChange={setActiveTab} />
-  <div className="flex-1 overflow-hidden">
-    {activeTab === 'code' ? (
-      <CodeEditor file={selectedFile} />
-    ) : (
-      <PreviewFrame webContainer={webcontainer} files={files} />
-    )}
-  </div>
-</div>
+
+          {/* Mobile Files Button */}
+          <button
+            onClick={() => setShowFiles(!showFiles)}
+            className="md:hidden fixed bottom-4 left-4 bg-blue-600 text-white p-3 rounded-full shadow-lg z-40"
+          >
+            <Menu size={20} />
+          </button>
+
+          {/* Mobile File Explorer Overlay */}
+          {showFiles && (
+            <div className="md:hidden fixed inset-0 z-50 bg-gray-900">
+              <div className="flex justify-between items-center p-4 border-b border-gray-700">
+                <h2 className="text-lg font-semibold text-gray-100">Files</h2>
+                <button onClick={() => setShowFiles(false)} className="text-gray-100">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="h-[calc(100vh-4rem)] overflow-auto">
+                <FileExplorer 
+                  files={files} 
+                  onFileSelect={(file) => {
+                    setSelectedFile(file);
+                    setShowFiles(false);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Code/Preview Panel */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-gray-900 rounded-lg shadow-lg flex flex-col h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]">
+            <TabView activeTab={activeTab} onTabChange={setActiveTab} />
+            <div className="flex-1 overflow-hidden">
+              {activeTab === 'code' ? (
+                <CodeEditor file={selectedFile} />
+              ) : (
+                <PreviewFrame webContainer={webcontainer} files={files} />
+              )}
+            </div>
+          </div>
 
         </div>
       </div>
