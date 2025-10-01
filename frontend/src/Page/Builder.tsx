@@ -15,6 +15,11 @@ import { Textarea } from '../components/ui/textarea.tsx';
 import { Loader } from '../components/Loader';
 import { Button } from '../components/ui/button.tsx';
 
+import JSZip from 'jszip';
+import { Download, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+
 const MOCK_FILE_CONTENT = `// This is a sample file content
 import React from 'react';
 
@@ -40,6 +45,65 @@ export function Builder() {
   const [steps, setSteps] = useState<Step[]>([]);
 
   const [files, setFiles] = useState<FileItem[]>([]);
+
+
+
+const handleDownloadZip = async () => {
+    const zip = new JSZip();
+
+    // Recursive function to add files to zip
+    const addFilesToZip = (items: FileItem[], folder: JSZip | null = null) => {
+      items.forEach(item => {
+        if (item.type === 'file') {
+          const content = item.content || '';
+          // Remove leading slash from path for cleaner zip structure
+          const zipPath = item.path?.startsWith('/') ? item.path.slice(1) : item.path || item.name;
+          
+          if (folder) {
+            folder.file(item.name, content);
+          } else {
+            zip.file(zipPath, content);
+          }
+        } else if (item.type === 'folder' && item.children) {
+          // Create folder in zip
+          const folderPath = item.path?.startsWith('/') ? item.path.slice(1) : item.path || item.name;
+          const newFolder = folder ? folder.folder(item.name) : zip.folder(folderPath);
+          
+          if (newFolder) {
+            addFilesToZip(item.children, newFolder);
+          }
+        }
+      });
+    };
+
+    // Add all files to the zip
+    addFilesToZip(files);
+
+    // Generate zip file
+    try {
+      const blob = await zip.generateAsync({ type: 'blob' });
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'project.zip';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating zip file:', error);
+      alert('Failed to generate zip file. Please try again.');
+    }
+  };
+
+
+
+
+
 
   useEffect(() => {
     let originalFiles = [...files];
@@ -194,10 +258,31 @@ export function Builder() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
-      <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
-        <h1 className="text-xl font-semibold text-gray-100">Website Builder</h1>
-        <p className="text-sm text-gray-400 mt-1">Prompt: {prompt}</p>
+ <header className="border-b border-gray-700 px-6 py-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-blue-400">BOLT</h1>
+          
+          {/* Actions */}
+          <div className="flex space-x-4 items-center text-gray-100">
+            {/* Show download button only when all steps are completed */}
+            {steps.length > 0 && steps.every(step => step.status === 'completed') && (
+              <button 
+                onClick={handleDownloadZip}
+                disabled={files.length === 0}
+                className="flex items-center space-x-1 cursor-pointer hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Download size={18} />
+                <span>Download Zip File</span>
+              </button>
+            )}
+            <Link to="/" className="flex items-center space-x-1 hover:text-blue-400">
+              <Home size={18} />
+              <span>Home</span>
+            </Link>
+          </div>
+        </div>
       </header>
+
       
       <div className="flex-1 overflow-hidden">
         <div className="h-full grid grid-cols-4 gap-4 p-4">
@@ -248,7 +333,7 @@ export function Builder() {
 
                       setPrompt("");
                     }} 
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 rounded-lg font-medium transition-colors duration-200 self-end"
+                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer  text-white px-6 rounded-lg font-medium transition-colors duration-200 self-end"
                   >
                     Send
                   </Button>
