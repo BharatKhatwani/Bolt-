@@ -18,34 +18,38 @@ const faqs: FAQ[] = [
       "Not at all! Bolt is designed for everyone. Beginners can use it without coding, while developers can customize the code if they want.",
   },
   {
-    question: "Can I export the website?",
-    answer:
-      "Yes, you can export the generated website as a complete codebase and host it on any platform of your choice.",
-  },
-  {
-    question: "Is Bolt free to use?",
-    answer:
-      "Bolt provides both free and premium plans. Free plans have some limitations, while premium unlocks advanced features.",
-  },
-  {
     question: "What technologies does Bolt use?",
     answer:
-      "Bolt uses modern frameworks like React, Tailwind CSS, and integrates with AI models to generate code and content.",
+      "Bolt uses modern frameworks like React and Tailwind CSS, and integrates AI models to generate code and content.",
   },
   {
     question: "Can I deploy directly from Bolt?",
     answer:
-      "Yes! Bolt allows one-click deployment to hosting providers so your website goes live instantly.",
+      "Yes! Download the zip file, set it up locally, and deploy it on free hosting platforms like Vercel or Netlify.",
   },
   {
-    question: "Is my data safe?",
-    answer:
-      "Yes. Bolt does not share your project data with anyone. Your code and ideas remain private and secure.",
+    question: "Can I export the code?",
+    answer: "Yes, you can export the generated code as a zip file and host it anywhere.",
   },
   {
-    question: "Can I collaborate with my team?",
-    answer:
-      "Absolutely. Bolt supports team collaboration where multiple members can edit and build the website together.",
+    question: "Does Bolt support custom domains?",
+    answer: "Absolutely! You can link your custom domain when deploying your website.",
+  },
+  {
+    question: "Can I edit the website after creation?",
+    answer: "Yes, you can modify the content, layout, and styling anytime after generating the site.",
+  },
+  {
+    question: "Is Bolt mobile-friendly?",
+    answer: "Every website generated with Bolt is fully responsive and works on all devices.",
+  },
+  {
+    question: "How does AI help in building websites?",
+    answer: "AI assists by generating layouts, content, and code based on your input and preferences.",
+  },
+  {
+    question: "Do I need an account to use Bolt?",
+    answer: "No, simply provide a prompt and see the results instantly.",
   },
 ];
 
