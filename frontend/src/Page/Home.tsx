@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Wand2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Feature from "../components/feature";
-import Work from "../components/work";
+import { Work } from "../components/work";
 import Accordion from "../components/Accordian";
 import Footer from "../components/fotter";
 

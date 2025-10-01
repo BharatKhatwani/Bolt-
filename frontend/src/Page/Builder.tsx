@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { StepsList } from '../components/StepsList';
 import { FileExplorer } from '../components/FileExplorer';
@@ -10,7 +10,6 @@ import axios from 'axios';
 import { BACKEND_URL } from '../config';
 import { parseXml } from '../steps';
 import { useWebContainer } from '../hook/useWebContainer';
-import  type { FileNode } from '@webcontainer/api';
 import { Textarea } from '../components/ui/textarea.tsx';
 import { Loader } from '../components/Loader';
 import { Button } from '../components/ui/button.tsx';
@@ -18,16 +17,6 @@ import { Button } from '../components/ui/button.tsx';
 import JSZip from 'jszip';
 import { Download, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-
-const MOCK_FILE_CONTENT = `// This is a sample file content
-import React from 'react';
-
-function Component() {
-  return <div>Hello World</div>;
-}
-
-export default Component;`;
 
 export function Builder() {
   const location = useLocation();

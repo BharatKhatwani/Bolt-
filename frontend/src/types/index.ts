@@ -21,6 +21,7 @@ export interface FileItem {
   children?: FileItem[];
   content?: string;
   path: string;
+  isLoading?: boolean;
 }
 
 export interface FileViewerProps {

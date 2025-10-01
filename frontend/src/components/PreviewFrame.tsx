@@ -1,16 +1,19 @@
 import { WebContainer } from '@webcontainer/api';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PreviewFrameProps {
   files: any[];
-  webContainer: WebContainer;
+  webContainer: WebContainer | undefined;
 }
 
-export function PreviewFrame({ files, webContainer }: PreviewFrameProps) {
-  // In a real implementation, this would compile and render the preview
-  const [url, setUrl] = useState("");
+export function PreviewFrame({  webContainer }: PreviewFrameProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [url, setUrl] = useState(""); // In a real implementation, this would compile and render the preview
 
   async function main() {
+    if (!webContainer) return;
+
     const installProcess = await webContainer.spawn('npm', ['install']);
 
     installProcess.output.pipeTo(new WritableStream({

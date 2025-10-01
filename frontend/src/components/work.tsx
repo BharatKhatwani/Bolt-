@@ -1,11 +1,9 @@
-import React from "react";
-
 const steps = [
   {
     number: "1",
-    title: "Give a Prompt",
+    title: "Describe your website",
     description:
-      "Describe your website idea in a few words and let our AI do the rest.",
+      "Tell us what kind of website you want to build. Be as specific as possible.",
   },
   {
     number: "2",
@@ -21,9 +19,9 @@ const steps = [
   },
 ];
 
-export default function Work() {
+export function Work() {
   return (
-    <div  id = "how" className="py-20">
+    <div id="how" className="py-20">
       <h2 className="text-3xl font-bold text-center text-gray-100 mb-12">
         How Bolt Works!
       </h2>

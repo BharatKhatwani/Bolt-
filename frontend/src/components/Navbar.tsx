@@ -1,11 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom"; // corrected import
+import { Link } from 'react-router-dom';
 
-const Navbar = () => {
+export function Navbar() {
   return (
     <nav className="w-full fixed top-0 left-0 z-20 bg-[#0f172a] border-b border-gray-800">
       <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo */}
       <Link
   to="/"
   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
