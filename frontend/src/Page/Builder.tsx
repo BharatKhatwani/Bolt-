@@ -67,12 +67,14 @@ export function Builder() {
 
     try {
       const blob = await zip.generateAsync({ type: 'blob' });
+      
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = 'project.zip';
       document.body.appendChild(link);
       link.click();
+      
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -136,6 +138,7 @@ export function Builder() {
         }
       }))
     }
+    console.log(files);
   }, [steps, files]);
 
   useEffect(() => {
@@ -171,10 +174,12 @@ export function Builder() {
       };
   
       files.forEach(file => processFile(file, true));
+  
       return mountStructure;
     };
   
     const mountStructure = createMountStructure(files);
+    console.log(mountStructure);
     webcontainer?.mount(mountStructure);
   }, [files, webcontainer]);
 
@@ -218,73 +223,77 @@ export function Builder() {
     init();
   }, [])
 
+  const handleFileSelect = (file: FileItem) => {
+    setSelectedFile(file);
+    setShowFiles(false); // Close mobile drawer after selection
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
-      {/* Header */}
-      <header className="border-b border-gray-700 px-4 sm:px-6 py-3 sm:py-4">
+      <header className="border-b border-gray-700 px-4 md:px-6 py-3 md:py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            {/* Mobile menu button */}
             <button 
               onClick={() => setShowSteps(!showSteps)}
               className="lg:hidden text-gray-100 hover:text-blue-400 transition-colors"
+              aria-label="Toggle steps menu"
             >
-              {showSteps ? <X size={20} /> : <Menu size={20} />}
+              <Menu size={24} />
             </button>
-            <h1 className="text-lg sm:text-xl font-semibold text-blue-400">BOLT</h1>
+            <h1 className="text-lg md:text-xl font-semibold text-blue-400">BOLT</h1>
           </div>
           
-          {/* Actions */}
-          <div className="flex gap-2 sm:gap-4 items-center text-gray-100">
+          <div className="flex space-x-2 md:space-x-4 items-center text-gray-100 text-sm md:text-base">
             {steps.length > 0 && steps.every(step => step.status === 'completed') && (
               <button 
                 onClick={handleDownloadZip}
                 disabled={files.length === 0}
-                className="flex items-center gap-1 cursor-pointer hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
+                className="flex items-center space-x-1 cursor-pointer hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Download project as zip"
               >
-                <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <Download size={16} className="md:w-[18px] md:h-[18px]" />
                 <span className="hidden sm:inline">Download Zip</span>
               </button>
             )}
-            <Link to="/" className="flex items-center gap-1 hover:text-blue-400 text-sm sm:text-base">
-              <Home size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <Link to="/" className="flex items-center space-x-1 hover:text-blue-400 transition-colors">
+              <Home size={16} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Home</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-2 sm:gap-4 p-2 sm:p-4">
-          
-          {/* Steps Panel - Mobile Overlay / Desktop Column */}
+        <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-2 md:gap-4 p-2 md:p-4">
+          {/* Steps Panel - Mobile Drawer / Desktop Column */}
           <div className={`
-            ${showSteps ? 'fixed inset-0 z-50 bg-gray-900' : 'hidden'} 
-            lg:block lg:relative lg:col-span-1 
-            flex flex-col h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]
+            fixed lg:relative inset-y-0 left-0 z-40 w-80 sm:w-96 lg:w-auto
+            lg:col-span-1 flex flex-col bg-gray-900 lg:bg-transparent
+            transform transition-transform duration-300 ease-in-out
+            ${showSteps ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]
+            border-r border-gray-800 lg:border-0
           `}>
-            {/* Mobile close button */}
-            <div className="lg:hidden flex justify-between items-center p-4 border-b border-gray-700">
+            <div className="flex lg:hidden justify-between items-center p-4 border-b border-gray-700">
               <h2 className="text-lg font-semibold text-gray-100">Steps</h2>
-              <button onClick={() => setShowSteps(false)} className="text-gray-100">
-                <X size={20} />
+              <button 
+                onClick={() => setShowSteps(false)} 
+                className="text-gray-400 hover:text-gray-100 transition-colors"
+                aria-label="Close steps menu"
+              >
+                <X size={24} />
               </button>
             </div>
-
-            <div className="flex-1 overflow-hidden mb-4 p-2 lg:p-0">
+            
+            <div className="flex-1 overflow-hidden mb-4 p-4 lg:p-0">
               <StepsList
                 steps={steps}
                 currentStep={currentStep}
-                onStepClick={(step) => {
-                  setCurrentStep(step);
-                  setShowSteps(false);
-                }}
+                onStepClick={setCurrentStep}
               />
             </div>
             
-            {/* Prompt Input */}
-            <div className="border-t border-gray-700 pt-4 pb-2 px-2 lg:px-0">
+            <div className="border-t border-gray-700 pt-4 pb-2 px-4 lg:px-0">
               {(loading || !templateSet) ? (
                 <div className="flex justify-center">
                   <Loader />
@@ -295,7 +304,7 @@ export function Builder() {
                     value={userPrompt} 
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter your prompt..."
-                    className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[80px] text-sm sm:text-base"
+                    className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
                   />
                   <Button
                     onClick={async () => {
@@ -322,9 +331,8 @@ export function Builder() {
                       }))]);
 
                       setPrompt("");
-                      setShowSteps(false);
                     }} 
-                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 self-end text-sm sm:text-base"
+                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-6 rounded-lg font-medium transition-colors duration-200 self-end sm:self-stretch"
                   >
                     Send
                   </Button>
@@ -333,46 +341,66 @@ export function Builder() {
             </div>
           </div>
 
-          {/* File Explorer - Hidden on mobile, visible on tablet+ */}
-          <div className="hidden md:block md:col-span-1 lg:col-span-1 h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]">
+          {/* Overlay for mobile steps */}
+          {showSteps && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+              onClick={() => setShowSteps(false)}
+              aria-label="Close steps menu overlay"
+            />
+          )}
+
+          {/* File Explorer - Mobile Drawer / Desktop Column */}
+          <div className={`
+            fixed lg:relative inset-y-0 left-0 z-40 w-80 sm:w-96 lg:w-auto
+            lg:col-span-1 bg-gray-900 lg:bg-transparent
+            transform transition-transform duration-300 ease-in-out
+            ${showFiles ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]
+            p-4 lg:p-0
+            border-r border-gray-800 lg:border-0
+          `}>
+            <div className="flex lg:hidden justify-between items-center mb-4 pb-4 border-b border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-100">Files</h2>
+              <button 
+                onClick={() => setShowFiles(false)} 
+                className="text-gray-400 hover:text-gray-100 transition-colors"
+                aria-label="Close files menu"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
             <FileExplorer 
               files={files} 
-              onFileSelect={setSelectedFile}
+              onFileSelect={handleFileSelect}
             />
           </div>
 
-          {/* Mobile Files Button */}
-          <button
-            onClick={() => setShowFiles(!showFiles)}
-            className="md:hidden fixed bottom-4 left-4 bg-blue-600 text-white p-3 rounded-full shadow-lg z-40"
-          >
-            <Menu size={20} />
-          </button>
-
-          {/* Mobile File Explorer Overlay */}
+          {/* Overlay for mobile files */}
           {showFiles && (
-            <div className="md:hidden fixed inset-0 z-50 bg-gray-900">
-              <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-100">Files</h2>
-                <button onClick={() => setShowFiles(false)} className="text-gray-100">
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="h-[calc(100vh-4rem)] overflow-auto">
-                <FileExplorer 
-                  files={files} 
-                  onFileSelect={(file) => {
-                    setSelectedFile(file);
-                    setShowFiles(false);
-                  }}
-                />
-              </div>
-            </div>
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+              onClick={() => setShowFiles(false)}
+              aria-label="Close files menu overlay"
+            />
           )}
 
           {/* Code/Preview Panel */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-gray-900 rounded-lg shadow-lg flex flex-col h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]">
-            <TabView activeTab={activeTab} onTabChange={setActiveTab} />
+          <div className="col-span-1 lg:col-span-2 bg-gray-900 rounded-lg shadow-lg flex flex-col h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)]">
+            <div className="flex items-center justify-between border-b border-gray-700">
+              <button 
+                onClick={() => setShowFiles(!showFiles)}
+                className="lg:hidden text-gray-100 hover:text-blue-400 px-3 py-3 transition-colors"
+                aria-label="Toggle files menu"
+              >
+                <Menu size={20} />
+              </button>
+              <div className="flex-1">
+                <TabView activeTab={activeTab} onTabChange={setActiveTab} />
+              </div>
+            </div>
+            
             <div className="flex-1 overflow-hidden">
               {activeTab === 'code' ? (
                 <CodeEditor file={selectedFile} />
@@ -381,7 +409,6 @@ export function Builder() {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>
