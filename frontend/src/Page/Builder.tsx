@@ -304,7 +304,7 @@ export function Builder() {
                     value={userPrompt} 
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter your prompt..."
-                    className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
+     className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
                   />
                   <Button
                     onClick={async () => {
