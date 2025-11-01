@@ -9,6 +9,7 @@ import type { Step, FileItem } from '../types';
 import axios from 'axios';
 import { parseXml } from '../steps';
 import { useWebContainer } from '../hook/useWebContainer';
+import type { FileSystemTree } from '@webcontainer/api';
 import { Textarea } from '../components/ui/textarea.tsx';
 import { Loader } from '../components/Loader';
 import { Button } from '../components/ui/button.tsx';
@@ -38,10 +39,10 @@ export function Builder() {
   const [showSteps, setShowSteps] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
 
-  const handleDownloadZip = async () => {
+  const handleDownloadZip = async (): Promise<void> => {
     const zip = new JSZip();
 
-    const addFilesToZip = (items: FileItem[], folder: JSZip | null = null) => {
+    const addFilesToZip = (items: FileItem[], folder: JSZip | null = null): void => {
       items.forEach(item => {
         if (item.type === 'file') {
           const content = item.content || '';
@@ -91,16 +92,16 @@ export function Builder() {
       if (step?.type === 'CreateFile') {
         let parsedPath = step.path?.split("/") ?? [];
         let currentFileStructure = [...originalFiles];
-        let finalAnswerRef = currentFileStructure;
+          const finalAnswerRef = currentFileStructure;
   
         let currentFolder = ""
         while(parsedPath.length) {
           currentFolder =  `${currentFolder}/${parsedPath[0]}`;
-          let currentFolderName = parsedPath[0];
+          const currentFolderName = parsedPath[0];
           parsedPath = parsedPath.slice(1);
   
           if (!parsedPath.length) {
-            let file = currentFileStructure.find(x => x.path === currentFolder)
+            const file = currentFileStructure.find(x => x.path === currentFolder)
             if (!file) {
               currentFileStructure.push({
                 name: currentFolderName,
@@ -112,7 +113,7 @@ export function Builder() {
               file.content = step.code;
             }
           } else {
-            let folder = currentFileStructure.find(x => x.path === currentFolder)
+            const folder = currentFileStructure.find(x => x.path === currentFolder)
             if (!folder) {
               currentFileStructure.push({
                 name: currentFolderName,
@@ -142,16 +143,16 @@ export function Builder() {
   }, [steps, files]);
 
   useEffect(() => {
-    const createMountStructure = (files: FileItem[]): Record<string, any> => {
-      const mountStructure: Record<string, any> = {};
+    const createMountStructure = (files: FileItem[]): FileSystemTree => {
+      const mountStructure: FileSystemTree = {};
   
-      const processFile = (file: FileItem, isRootFolder: boolean) => {  
+      const processFile = (file: FileItem, isRootFolder: boolean): FileSystemTree[string] | undefined => {  
         if (file.type === 'folder') {
           mountStructure[file.name] = {
             directory: file.children ? 
               Object.fromEntries(
                 file.children.map(child => [child.name, processFile(child, false)])
-              ) 
+              ) as FileSystemTree
               : {}
           };
         } else if (file.type === 'file') {
@@ -183,7 +184,7 @@ export function Builder() {
     webcontainer?.mount(mountStructure);
   }, [files, webcontainer]);
 
-  async function init() {
+  async function init(): Promise<void> {
     const response = await axios.post(`${BACKEND_URL}/template`, {
       prompt: prompt.trim()
     });
@@ -208,7 +209,7 @@ export function Builder() {
 
     setSteps(s => [...s, ...parseXml(stepsResponse.data.response).map(x => ({
       ...x,
-      status: "pending" as "pending"
+      status: "pending" as const
     }))]);
 
     setLlmMessages([...prompts, prompt].map(content => ({
@@ -309,7 +310,7 @@ export function Builder() {
                   <Button
                     onClick={async () => {
                       const newMessage = {
-                        role: "user" as "user",
+                        role: "user" as const,
                         content: userPrompt
                       };
 
@@ -327,7 +328,7 @@ export function Builder() {
                       
                       setSteps(s => [...s, ...parseXml(stepsResponse.data.response).map(x => ({
                         ...x,
-                        status: "pending" as "pending"
+                        status: "pending" as const
                       }))]);
 
                       setPrompt("");

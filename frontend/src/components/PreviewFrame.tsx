@@ -1,9 +1,10 @@
-import { WebContainer } from "@webcontainer/api";
+import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
 import { useEffect, useState, useRef } from "react";
 import * as CryptoJS from "crypto-js";
+import type { FileItem } from "../types";
 
 interface PreviewFrameProps {
-  files: any[];
+  files: FileItem[];
   webContainer: WebContainer | undefined;
 }
 
@@ -11,7 +12,7 @@ declare global {
   interface Window {
     __pkgHash__?: string;
     __installDone__?: boolean;
-    __devProcess__?: any;
+    __devProcess__?: WebContainerProcess;
   }
 }
 
@@ -22,7 +23,7 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
   const isServerReadyRef = useRef(false);
 
   // Compute hash to detect file changes
-  function getFilesHash(filesList: any[]): string {
+  function getFilesHash(filesList: FileItem[]): string {
     const fileContents = JSON.stringify(
       filesList.map((f) => ({
         path: f.path,
@@ -89,7 +90,7 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
     });
   }
 
-  async function writeFilesIncrementally(wc: WebContainer, filesList: any[]) {
+  async function writeFilesIncrementally(wc: WebContainer, filesList: FileItem[]) {
     for (const file of filesList) {
       if (file.type === "file") {
         try {
