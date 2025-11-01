@@ -82,7 +82,7 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
       })
     );
 
-    wc.on("server-ready", (port, previewUrl) => {
+    wc.on("server-ready", (_port, previewUrl) => {
       console.log(`✅ Server ready at: ${previewUrl}`);
       setUrl(previewUrl);
       setLoading(false);
