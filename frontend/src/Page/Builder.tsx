@@ -11,10 +11,12 @@ import { parseXml } from '../steps';
 import { useWebContainer } from '../hook/useWebContainer';
 import type { FileSystemTree } from '@webcontainer/api';
 import { Textarea } from '../components/ui/textarea.tsx';
-import { Loader } from '../components/Loader';
+// import { Loader } from '../components/Loader';
+import { Download, Home, Menu, X, Send, Loader2 } from "lucide-react";
+
 import { Button } from '../components/ui/button.tsx';
 import JSZip from 'jszip';
-import { Download, Home, Menu, X } from 'lucide-react';
+// import { Download, Home, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -294,52 +296,74 @@ export function Builder() {
               />
             </div>
             
-            <div className="border-t border-gray-700 pt-4 pb-2 px-4 lg:px-0">
-              {(loading || !templateSet) ? (
-                <div className="flex justify-center">
-                  <Loader />
-                </div>
-              ) : (
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Textarea
-                    value={userPrompt} 
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Enter your prompt..."
-     className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
-                  />
-                  <Button
-                    onClick={async () => {
-                      const newMessage = {
-                        role: "user" as const,
-                        content: userPrompt
-                      };
+           <div className="border-t border-gray-700 pt-4 pb-3 px-4 lg:px-0">
+  {loading || !templateSet ? (
+    <div className="flex justify-center py-6">
+      <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+    </div>
+  ) : (
+    <div className="flex flex-col sm:flex-row gap-3 items-end">
+      <Textarea
+        value={userPrompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Describe what you want to build..."
+        className="flex-1 p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-xl resize-none 
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+                   placeholder-gray-500 min-h-[90px] transition-all duration-200"
+      />
+      
+      <Button
+        disabled={!userPrompt.trim() || loading}
+        onClick={async () => {
+          const newMessage = {
+            role: "user" as const,
+            content: userPrompt,
+          };
 
-                      setLoading(true);
-                      const stepsResponse = await axios.post(`${BACKEND_URL}/chat`, {
-                        messages: [...llmMessages, newMessage]
-                      });
-                      setLoading(false);
+          setLoading(true);
+          try {
+            const stepsResponse = await axios.post(`${BACKEND_URL}/chat`, {
+              messages: [...llmMessages, newMessage],
+            });
 
-                      setLlmMessages(x => [...x, newMessage]);
-                      setLlmMessages(x => [...x, {
-                        role: "assistant",
-                        content: stepsResponse.data.response
-                      }]);
-                      
-                      setSteps(s => [...s, ...parseXml(stepsResponse.data.response).map(x => ({
-                        ...x,
-                        status: "pending" as const
-                      }))]);
+            setLlmMessages((x) => [...x, newMessage]);
+            setLlmMessages((x) => [
+              ...x,
+              {
+                role: "assistant",
+                content: stepsResponse.data.response,
+              },
+            ]);
 
-                      setPrompt("");
-                    }} 
-                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-6 rounded-lg font-medium transition-colors duration-200 self-end sm:self-stretch"
-                  >
-                    Send
-                  </Button>
-                </div>
-              )}
-            </div>
+            setSteps((s) => [
+              ...s,
+              ...parseXml(stepsResponse.data.response).map((x) => ({
+                ...x,
+                status: "pending" as const,
+              })),
+            ]);
+          } finally {
+            setLoading(false);
+            setPrompt("");
+          }
+        }}
+        className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 
+             text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 
+             cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <Loader2 className="w-10 h-10 animate-spin" />
+        ) : (
+          <>
+            <Send className="w-4 h-4 "  />
+            <span>Send</span>
+          </>
+        )}
+      </Button>
+    </div>
+  )}
+</div>
+
           </div>
 
           {/* Overlay for mobile steps */}

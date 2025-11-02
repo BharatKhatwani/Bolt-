@@ -32,7 +32,7 @@ export function StepsList({ steps, currentStep, onStepClick }: StepsListProps) {
             </div>
           ) : (
             steps.map((step, index) => (
-              // ✅ key uses both ID + index to ensure uniqueness
+              // key uses both ID + index to ensure uniqueness
               <div
                 key={`${step.id}-${index}`}
                 className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${

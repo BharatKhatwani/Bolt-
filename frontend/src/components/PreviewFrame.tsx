@@ -2,6 +2,7 @@ import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
 import { useEffect, useState, useRef } from "react";
 import * as CryptoJS from "crypto-js";
 import type { FileItem } from "../types";
+import { Loader2 } from "lucide-react";
 // import { CheckCircle, Circle, Clock, Loader2 } from "lucide-react";
 interface PreviewFrameProps {
   files: FileItem[];
@@ -162,12 +163,7 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
   return (
     <div className="h-full flex items-center justify-center text-gray-400">
       {loading && (
-        <div className="text-center">
-          <p className="mb-2 animate-pulse">🚀 Preparing preview...</p>
-          <p className="text-sm opacity-70">
-            Caching dependencies for faster reloads
-          </p>
-        </div>
+        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
       )}
       {url && (
         <iframe
