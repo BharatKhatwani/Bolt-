@@ -2,7 +2,7 @@ import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
 import { useEffect, useState, useRef } from "react";
 import * as CryptoJS from "crypto-js";
 import type { FileItem } from "../types";
-
+// import { CheckCircle, Circle, Clock, Loader2 } from "lucide-react";
 interface PreviewFrameProps {
   files: FileItem[];
   webContainer: WebContainer | undefined;
@@ -47,13 +47,13 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
     const pkgHash = await getPackageJsonHash(wc);
 
     if (!window.__installDone__ || window.__pkgHash__ !== pkgHash) {
-      console.log("📦 Installing dependencies...");
+      // console.log("📦 Installing dependencies...");
       const installProcess = await wc.spawn("npm", ["install"]);
 
       installProcess.output.pipeTo(
         new WritableStream({
-          write(data) {
-            console.log(data);
+          write() {
+            // console.log(data);
           },
         })
       );
@@ -63,14 +63,14 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
 
       window.__installDone__ = true;
       window.__pkgHash__ = pkgHash;
-      console.log("✅ Dependencies installed & cached");
+      // console.log("✅ Dependencies installed & cached");
     } else {
-      console.log("♻️ Using cached node_modules");
+      // console.log("♻️ Using cached node_modules");
     }
   }
 
   async function startDevServer(wc: WebContainer) {
-    console.log("🚀 Starting dev server...");
+    // console.log("🚀 Starting dev server...");
     const devProcess = await wc.spawn("npm", ["run", "dev"]);
     window.__devProcess__ = devProcess;
 
@@ -83,7 +83,7 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
     );
 
     wc.on("server-ready", (_port, previewUrl) => {
-      console.log(`✅ Server ready at: ${previewUrl}`);
+      // console.log(`✅ Server ready at: ${previewUrl}`);
       setUrl(previewUrl);
       setLoading(false);
       isServerReadyRef.current = true;
@@ -127,7 +127,7 @@ export function PreviewFrame({ webContainer, files }: PreviewFrameProps) {
       filesHashRef.current &&
       filesHashRef.current !== newHash
     ) {
-      console.log("🔄 Files changed — updating preview...");
+      // console.log("🔄 Files changed — updating preview...");
 
       (async () => {
         try {

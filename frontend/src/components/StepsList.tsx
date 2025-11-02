@@ -12,8 +12,8 @@ export function StepsList({ steps, currentStep, onStepClick }: StepsListProps) {
   const isGenerating = steps.some((step) => step.status === "in-progress");
 
   // Debug logs
-  console.log("Steps state:", steps);
-  console.log("Any step in-progress?", isGenerating);
+  // console.log("Steps state:", steps);
+  // console.log("Any step in-progress?", isGenerating);
 
   return (
     <div className="bg-gray-900 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">

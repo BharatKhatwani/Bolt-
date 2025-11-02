@@ -139,7 +139,7 @@ export function Builder() {
         }
       }))
     }
-    console.log(files);
+    // console.log(files);
   }, [steps, files]);
 
   useEffect(() => {
@@ -180,7 +180,7 @@ export function Builder() {
     };
   
     const mountStructure = createMountStructure(files);
-    console.log(mountStructure);
+    // console.log(mountStructure);
     webcontainer?.mount(mountStructure);
   }, [files, webcontainer]);
 

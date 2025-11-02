@@ -28,6 +28,7 @@ Analyze the following project description and determine the primary project type
 
 Rules:
 - If it mentions "React", "frontend", "UI", "website", "web app", "component" → respond with: react
+- If it mentions BOTH ("React" or "frontend") AND ("Node", "Express", or "MongoDB") → respond with: mern
 - If it mentions "API", "backend", "Express", "server", "REST", "endpoint", "Node.js" → respond with: node
 - If it mentions "Java", "Spring Boot", "JDK", "Maven", "Gradle" → respond with: java
 - If it mentions "Python", "Flask", "Django", "FastAPI" → respond with: python
@@ -96,6 +97,8 @@ Here is a list of files that exist on the file system but are not being shown to
       case "gin":
       case "fiber":
         return res.json(createResponse(goBasePrompt));
+
+      
 
       default:
         // If unclear, default to React
