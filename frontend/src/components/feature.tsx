@@ -17,7 +17,7 @@ export default function Feature() {
     {
       title: "AI-Powered Code Generation",
       description:
-        "Describe your app and get the full codebase generated with React, Tailwind, and Node.js.",
+        "Describe your app and get the full codebase generated React ,Tailwind ,Node.js , Python , Golang , Java",
 
       icon: <Code className="w-6 h-6 text-blue-400" />,
     },
@@ -51,7 +51,7 @@ export default function Feature() {
     },
   ];
 
-  let [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <div  id="features"
