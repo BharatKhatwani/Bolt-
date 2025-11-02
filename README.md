@@ -224,7 +224,7 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 - Inspired by [Bolt](https://bolt.new) by StackBlitz
 - Powered by [Google Generative AI](https://ai.google.dev/)
-- Built with [React](https://react.dev/) and [Vite](https://vitejs.dev/)
+- Built with [React](https://react.dev/) and [node.js](https://nodejs.dev/)
 
 ##  Support
 
